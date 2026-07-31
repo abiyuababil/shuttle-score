@@ -552,22 +552,24 @@ export default function BracketPage() {
       </div>
 
       {/* ── Status Legend Bar (Bottom) ────────────────── */}
-      <div className="mx-4 mt-5 grid grid-cols-2 sm:grid-cols-4 gap-y-2 gap-x-2 py-2.5 px-3 bg-white/90 backdrop-blur rounded-xl border border-slate-200/80 shadow-xs text-[11px] font-semibold text-slate-600">
-        <div className="flex items-center gap-1.5 justify-center">
-          <span className="w-2.5 h-2.5 rounded-full bg-primary-600 shrink-0" />
-          <span>Belum Tanding</span>
-        </div>
-        <div className="flex items-center gap-1.5 justify-center">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
-          <span className="text-red-600 font-bold">Sedang Tanding</span>
-        </div>
-        <div className="flex items-center gap-1.5 justify-center">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-          <span className="text-emerald-700 font-bold">Selesai</span>
-        </div>
-        <div className="flex items-center gap-1.5 justify-center">
-          <span className="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0" />
-          <span className="text-slate-400">BYE</span>
+      <div className="mx-4 mt-5 p-3.5 bg-white/90 backdrop-blur rounded-xl border border-slate-200/80 shadow-xs">
+        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 max-w-xs mx-auto text-[11px] font-semibold text-slate-600">
+          <div className="flex items-center gap-2 justify-start">
+            <span className="w-2.5 h-2.5 rounded-full bg-primary-600 shrink-0" />
+            <span>Belum Tanding</span>
+          </div>
+          <div className="flex items-center gap-2 justify-start">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+            <span className="text-red-600 font-bold">Sedang Tanding</span>
+          </div>
+          <div className="flex items-center gap-2 justify-start">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+            <span className="text-emerald-700 font-bold">Selesai</span>
+          </div>
+          <div className="flex items-center gap-2 justify-start">
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0" />
+            <span className="text-slate-400">BYE</span>
+          </div>
         </div>
       </div>
 
