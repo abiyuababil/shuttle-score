@@ -3,7 +3,6 @@
 **ShuttleScore** adalah aplikasi pengelola turnamen bulutangkis (badminton) modern, responsif, dan real-time yang dilengkapi dengan generator bagan otomatis (*Pixel-Perfect Bracket Tree*), pencatat skor pertandingan (*Live Scorekeeper*), dan integrasi cloud database Firebase Firestore.
 
 🌐 **Demo Live App**: [https://badminton-cup.web.app](https://badminton-cup.web.app)  
-📁 **Repository GitHub**: [https://github.com/abiyuababil/shuttle-score.git](https://github.com/abiyuababil/shuttle-score.git)
 
 ---
 
@@ -21,12 +20,6 @@
   - Indikator posisi porsi servis (*shuttlecock indicator*) dengan animasi dinamis.
   - Sistem Best-of-3 Set (Game 1, Game 2, Rubber) dengan verifikasi pemenang set & pertandingan.
   - Sinkronisasi Firestore real-time — skor otomatis memperbarui bagan turnamen di layar utama.
-
-- **⚡ Presets AMINEF Badminton Cup 2026**:
-  - **Men's Doubles**: 4 tim (Irham + Abiyu, Yasa + Johan, Suparji + Sean, Nova + Rizqi).
-  - **Women's Doubles**: 7 tim (Maria + Prisil, Frisca + Tinna, Thasia + Rere, Rianti + Bella, Mada + Rimma, Rahmi + Ratna, Ibu Sandra + Nabila).
-  - **Mixed Doubles**: 9 tim (Anthony + Bella, Irham + Tinna, Abiyu + Maria, Nova + Frisca, Rizqi + Nabila, Yasa + Thasia, Sean + Rimma, Suparji + Rahmi, Johan + Ibu Sandra).
-  - Tombol **"Buat Semua (3)"** untuk men-generate 3 kategori sekaligus dalam 1 klik.
 
 - **🎨 UX & UI Modern**:
   - *Collapsible Form* untuk pembuat turnamen baru agar tampilan depan tetap ringkas.
