@@ -330,9 +330,8 @@ export default function HomePage() {
           <button
             type="button"
             onClick={() => setIsCreateOpen(!isCreateOpen)}
-            className={`w-full flex items-center justify-between text-left ${
-              isCreateOpen ? "mb-4" : ""
-            } transition-all active:scale-[0.99]`}
+            className={`w-full flex items-center justify-between text-left ${isCreateOpen ? "mb-4" : ""
+              } transition-all active:scale-[0.99]`}
           >
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center shrink-0">
@@ -361,254 +360,251 @@ export default function HomePage() {
           {isCreateOpen && (
             <div className="animate-fade-in">
 
-          {/* ── Quick Preset Banner ─────────────────────── */}
-          <div className="mb-5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                Preset AMINEF Cup 2026
-              </span>
-              <button
-                onClick={handleSeedAminef}
-                disabled={loading}
-                className="text-[11px] font-bold text-primary-600 bg-primary-50 hover:bg-primary-100 px-2.5 py-1 rounded-lg transition active:scale-95 flex items-center gap-1"
-              >
-                <Zap className="w-3 h-3 text-primary-500" />
-                Buat Semua (3)
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => loadPreset("mens")}
-                className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:border-primary-300 hover:bg-primary-50/50 active:scale-95 transition truncate"
-              >
-                Men's (4)
-              </button>
-              <button
-                type="button"
-                onClick={() => loadPreset("womens")}
-                className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:border-primary-300 hover:bg-primary-50/50 active:scale-95 transition truncate"
-              >
-                Women's (7)
-              </button>
-              <button
-                type="button"
-                onClick={() => loadPreset("mixed")}
-                className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:border-primary-300 hover:bg-primary-50/50 active:scale-95 transition truncate"
-              >
-                Mixed (9)
-              </button>
-            </div>
-          </div>
-
-          {/* Tournament Name */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-slate-600 mb-1.5">
-              Nama Turnamen
-            </label>
-            <input
-              id="tournament-name"
-              type="text"
-              value={tournamentName}
-              onChange={(e) => setTournamentName(e.target.value)}
-              placeholder='contoh: "Turnamen Badminton RT 05"'
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
-            />
-          </div>
-
-          {/* Team Count — flexible +/- selector */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-slate-600 mb-1.5">
-              Jumlah Tim
-            </label>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => adjustTeamCount(-1)}
-                disabled={teamCount <= 3}
-                className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 active:scale-95 transition disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <Minus className="w-4 h-4 text-slate-600" />
-              </button>
-              <div className="flex-1 text-center">
-                <span className="text-2xl font-extrabold text-slate-800">
-                  {teamCount}
-                </span>
-                <span className="text-sm font-semibold text-slate-400 ml-1">
-                  tim
-                </span>
-              </div>
-              <button
-                onClick={() => adjustTeamCount(1)}
-                disabled={teamCount >= 16}
-                className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 active:scale-95 transition disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4 text-slate-600" />
-              </button>
-            </div>
-            {byeCount > 0 && (
-              <p className="text-[11px] text-amber-600 bg-amber-50 rounded-lg px-3 py-1.5 mt-2 font-medium">
-                📌 Bracket {bracketSize} slot — {byeCount} tim mendapat <strong>BYE</strong> (langsung maju ke babak berikutnya)
-              </p>
-            )}
-          </div>
-
-          {/* Team Inputs with move up/down */}
-          <div className="mb-5">
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm font-semibold text-slate-600">
-                Nama Tim / Pasangan
-              </label>
-              <span className="text-xs text-slate-400 font-medium">
-                {filledCount}/{teamCount}
-              </span>
-            </div>
-            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-              {teamInputs.map((val, i) => (
-                <div key={i} className="flex items-center gap-1.5">
-                  {/* Move Up/Down */}
-                  <div className="flex flex-col shrink-0">
-                    <button
-                      onClick={() => swapTeams(i, i - 1)}
-                      disabled={i === 0}
-                      className="w-5 h-4 flex items-center justify-center text-slate-400 hover:text-primary-500 disabled:opacity-20 transition"
-                      title="Pindah ke atas"
-                    >
-                      <ArrowUp className="w-3 h-3" />
-                    </button>
-                    <button
-                      onClick={() => swapTeams(i, i + 1)}
-                      disabled={i === teamCount - 1}
-                      className="w-5 h-4 flex items-center justify-center text-slate-400 hover:text-primary-500 disabled:opacity-20 transition"
-                      title="Pindah ke bawah"
-                    >
-                      <ArrowDown className="w-3 h-3" />
-                    </button>
-                  </div>
-                  <span className="text-xs font-bold text-slate-400 w-4 text-right shrink-0">
-                    {i + 1}
+              {/* ── Quick Preset Banner ─────────────────────── */}
+              <div className="mb-5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    Preset AMINEF Cup 2026
                   </span>
-                  <input
-                    type="text"
-                    value={val}
-                    onChange={(e) => updateTeam(i, e.target.value)}
-                    placeholder={`contoh: "Irham + Abiyu"`}
-                    className="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── Bracket Preview ───────────────────────── */}
-          {filledCount >= 2 && (
-            <div className="mb-5">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <Swords className="w-4 h-4 text-primary-500" />
-                  <span className="text-sm font-semibold text-slate-600">
-                    Preview Bagan
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const filled = teamInputs.filter((t) => t.trim());
-                    const shuffled = [...filled];
-                    for (let i = shuffled.length - 1; i > 0; i--) {
-                      const j = Math.floor(Math.random() * (i + 1));
-                      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-                    }
-                    const next = Array(teamCount).fill("");
-                    shuffled.forEach((name, idx) => {
-                      if (idx < teamCount) next[idx] = name;
-                    });
-                    setTeamInputs(next);
-                  }}
-                  className="flex items-center gap-1 text-xs font-bold text-primary-500 hover:text-primary-600 active:scale-95 transition px-2 py-1 rounded-lg hover:bg-primary-50"
-                >
-                  <Shuffle className="w-3.5 h-3.5" />
-                  Acak
-                </button>
-              </div>
-
-              <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 space-y-2">
-                {previewPairs.map((pair, pairIdx) => (
-                  <div
-                    key={pairIdx}
-                    className={`bg-white rounded-lg border border-slate-100 overflow-hidden ${
-                      pair.aIsBye || pair.bIsBye ? "opacity-60" : ""
-                    }`}
+                  <button
+                    onClick={handleSeedAminef}
+                    disabled={loading}
+                    className="text-[11px] font-bold text-primary-600 bg-primary-50 hover:bg-primary-100 px-2.5 py-1 rounded-lg transition active:scale-95 flex items-center gap-1"
                   >
-                    {/* Match header */}
-                    <div className="px-3 py-1 bg-primary-50/60 border-b border-slate-100 flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-primary-600 uppercase tracking-wider">
-                        Match {pairIdx + 1}
-                      </span>
-                      <span className="text-[10px] font-medium text-slate-400">
-                        {pair.aIsBye || pair.bIsBye ? "BYE — auto maju" : getRoundLabel()}
-                      </span>
-                    </div>
-                    {/* Team A */}
-                    <div className={`flex items-center border-l-[3px] ${pair.aIsBye ? "border-l-slate-300" : "border-l-primary-500"}`}>
-                      <span
-                        className={`flex-1 px-3 py-2 text-[13px] font-semibold truncate ${
-                          pair.aIsBye
-                            ? "text-slate-300 italic"
-                            : pair.a.startsWith("Tim ")
-                            ? "text-slate-300 italic"
-                            : "text-slate-700"
-                        }`}
-                      >
-                        {pair.a}
-                      </span>
-                    </div>
-                    {/* VS divider */}
-                    <div className="flex items-center px-3">
-                      <div className="flex-1 h-px bg-slate-100" />
-                      <span className="text-[9px] font-bold text-slate-300 uppercase px-2">
-                        vs
-                      </span>
-                      <div className="flex-1 h-px bg-slate-100" />
-                    </div>
-                    {/* Team B */}
-                    <div className={`flex items-center border-l-[3px] ${pair.bIsBye ? "border-l-slate-300" : "border-l-cyan-500"}`}>
-                      <span
-                        className={`flex-1 px-3 py-2 text-[13px] font-semibold truncate ${
-                          pair.bIsBye
-                            ? "text-slate-300 italic"
-                            : pair.b.startsWith("Tim ")
-                            ? "text-slate-300 italic"
-                            : "text-slate-700"
-                        }`}
-                      >
-                        {pair.b}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                <p className="text-[10px] text-slate-400 text-center pt-1">
-                  Gunakan ↑↓ atau "Acak" untuk mengubah susunan matchup
-                </p>
+                    <Zap className="w-3 h-3 text-primary-500" />
+                    Buat Semua (3)
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => loadPreset("mens")}
+                    className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:border-primary-300 hover:bg-primary-50/50 active:scale-95 transition truncate"
+                  >
+                    Men's (4)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadPreset("womens")}
+                    className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:border-primary-300 hover:bg-primary-50/50 active:scale-95 transition truncate"
+                  >
+                    Women's (7)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadPreset("mixed")}
+                    className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:border-primary-300 hover:bg-primary-50/50 active:scale-95 transition truncate"
+                  >
+                    Mixed (9)
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Generate Button */}
-          <button
-            id="generate-bracket"
-            onClick={handleGenerate}
-            disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-500 to-cyan-500 text-white font-bold text-sm shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <Zap className="w-4 h-4" />
-                Generate Bracket
-              </>
-            )}
-          </button>
+              {/* Tournament Name */}
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-slate-600 mb-1.5">
+                  Nama Turnamen
+                </label>
+                <input
+                  id="tournament-name"
+                  type="text"
+                  value={tournamentName}
+                  onChange={(e) => setTournamentName(e.target.value)}
+                  placeholder='contoh: "Turnamen Badminton RT 05"'
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
+                />
+              </div>
+
+              {/* Team Count — flexible +/- selector */}
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-slate-600 mb-1.5">
+                  Jumlah Tim
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => adjustTeamCount(-1)}
+                    disabled={teamCount <= 3}
+                    className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 active:scale-95 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <Minus className="w-4 h-4 text-slate-600" />
+                  </button>
+                  <div className="flex-1 text-center">
+                    <span className="text-2xl font-extrabold text-slate-800">
+                      {teamCount}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-400 ml-1">
+                      tim
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => adjustTeamCount(1)}
+                    disabled={teamCount >= 16}
+                    className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 active:scale-95 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <Plus className="w-4 h-4 text-slate-600" />
+                  </button>
+                </div>
+                {byeCount > 0 && (
+                  <p className="text-[11px] text-amber-600 bg-amber-50 rounded-lg px-3 py-1.5 mt-2 font-medium">
+                    📌 Bracket {bracketSize} slot — {byeCount} tim mendapat <strong>BYE</strong> (langsung maju ke babak berikutnya)
+                  </p>
+                )}
+              </div>
+
+              {/* Team Inputs with move up/down */}
+              <div className="mb-5">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-semibold text-slate-600">
+                    Nama Tim / Pasangan
+                  </label>
+                  <span className="text-xs text-slate-400 font-medium">
+                    {filledCount}/{teamCount}
+                  </span>
+                </div>
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {teamInputs.map((val, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      {/* Move Up/Down */}
+                      <div className="flex flex-col shrink-0">
+                        <button
+                          onClick={() => swapTeams(i, i - 1)}
+                          disabled={i === 0}
+                          className="w-5 h-4 flex items-center justify-center text-slate-400 hover:text-primary-500 disabled:opacity-20 transition"
+                          title="Pindah ke atas"
+                        >
+                          <ArrowUp className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => swapTeams(i, i + 1)}
+                          disabled={i === teamCount - 1}
+                          className="w-5 h-4 flex items-center justify-center text-slate-400 hover:text-primary-500 disabled:opacity-20 transition"
+                          title="Pindah ke bawah"
+                        >
+                          <ArrowDown className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <span className="text-xs font-bold text-slate-400 w-4 text-right shrink-0">
+                        {i + 1}
+                      </span>
+                      <input
+                        type="text"
+                        value={val}
+                        onChange={(e) => updateTeam(i, e.target.value)}
+                        placeholder={`contoh: "Abiyu + Jaka"`}
+                        className="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Bracket Preview ───────────────────────── */}
+              {filledCount >= 2 && (
+                <div className="mb-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <Swords className="w-4 h-4 text-primary-500" />
+                      <span className="text-sm font-semibold text-slate-600">
+                        Preview Bagan
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const filled = teamInputs.filter((t) => t.trim());
+                        const shuffled = [...filled];
+                        for (let i = shuffled.length - 1; i > 0; i--) {
+                          const j = Math.floor(Math.random() * (i + 1));
+                          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                        }
+                        const next = Array(teamCount).fill("");
+                        shuffled.forEach((name, idx) => {
+                          if (idx < teamCount) next[idx] = name;
+                        });
+                        setTeamInputs(next);
+                      }}
+                      className="flex items-center gap-1 text-xs font-bold text-primary-500 hover:text-primary-600 active:scale-95 transition px-2 py-1 rounded-lg hover:bg-primary-50"
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                      Acak
+                    </button>
+                  </div>
+
+                  <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 space-y-2">
+                    {previewPairs.map((pair, pairIdx) => (
+                      <div
+                        key={pairIdx}
+                        className={`bg-white rounded-lg border border-slate-100 overflow-hidden ${pair.aIsBye || pair.bIsBye ? "opacity-60" : ""
+                          }`}
+                      >
+                        {/* Match header */}
+                        <div className="px-3 py-1 bg-primary-50/60 border-b border-slate-100 flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-primary-600 uppercase tracking-wider">
+                            Match {pairIdx + 1}
+                          </span>
+                          <span className="text-[10px] font-medium text-slate-400">
+                            {pair.aIsBye || pair.bIsBye ? "BYE — auto maju" : getRoundLabel()}
+                          </span>
+                        </div>
+                        {/* Team A */}
+                        <div className={`flex items-center border-l-[3px] ${pair.aIsBye ? "border-l-slate-300" : "border-l-primary-500"}`}>
+                          <span
+                            className={`flex-1 px-3 py-2 text-[13px] font-semibold truncate ${pair.aIsBye
+                                ? "text-slate-300 italic"
+                                : pair.a.startsWith("Tim ")
+                                  ? "text-slate-300 italic"
+                                  : "text-slate-700"
+                              }`}
+                          >
+                            {pair.a}
+                          </span>
+                        </div>
+                        {/* VS divider */}
+                        <div className="flex items-center px-3">
+                          <div className="flex-1 h-px bg-slate-100" />
+                          <span className="text-[9px] font-bold text-slate-300 uppercase px-2">
+                            vs
+                          </span>
+                          <div className="flex-1 h-px bg-slate-100" />
+                        </div>
+                        {/* Team B */}
+                        <div className={`flex items-center border-l-[3px] ${pair.bIsBye ? "border-l-slate-300" : "border-l-cyan-500"}`}>
+                          <span
+                            className={`flex-1 px-3 py-2 text-[13px] font-semibold truncate ${pair.bIsBye
+                                ? "text-slate-300 italic"
+                                : pair.b.startsWith("Tim ")
+                                  ? "text-slate-300 italic"
+                                  : "text-slate-700"
+                              }`}
+                          >
+                            {pair.b}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                    <p className="text-[10px] text-slate-400 text-center pt-1">
+                      Gunakan ↑↓ atau "Acak" untuk mengubah susunan matchup
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Generate Button */}
+              <button
+                id="generate-bracket"
+                onClick={handleGenerate}
+                disabled={loading}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-500 to-cyan-500 text-white font-bold text-sm shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    Generate Bracket
+                  </>
+                )}
+              </button>
             </div>
           )}
         </div>
