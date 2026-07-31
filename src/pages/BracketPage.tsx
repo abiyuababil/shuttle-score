@@ -92,6 +92,7 @@ function MatchCard({
   const hasBye = isBye(match.teamA) || isBye(match.teamB);
   const canTap = match.teamA && match.teamB && !hasBye && match.status !== "completed";
   const showScore = match.status !== "pending" && !hasBye;
+  const isLive = match.status === "live" && !match.winnerId;
 
   const getScoreDetail = (team: "A" | "B") => {
     const games = [match.scores.game1, match.scores.game2, match.scores.game3];
@@ -113,8 +114,8 @@ function MatchCard({
       className={`w-full text-left rounded-lg overflow-hidden shadow-sm transition-all h-[74px] border border-slate-200 flex flex-col justify-between ${
         hasBye
           ? "opacity-50 cursor-default"
-          : match.status === "live"
-          ? "ring-2 ring-red-300 shadow-red-100"
+          : isLive
+          ? "ring-2 ring-red-400 shadow-red-100 animate-pulse-subtle"
           : canTap
           ? "hover:shadow-md hover:ring-2 hover:ring-primary-300 active:scale-[0.98]"
           : "opacity-70 cursor-default"
@@ -129,10 +130,10 @@ function MatchCard({
         showScore={showScore}
         accentColor={
           isBye(match.teamA)
-            ? "#94a3b8"
+            ? "#cbd5e1"
             : match.winnerId === match.teamA?.id
             ? "#22c55e"
-            : match.status === "live"
+            : isLive
             ? "#ef4444"
             : "#0369a1"
         }
@@ -147,10 +148,10 @@ function MatchCard({
         showScore={showScore}
         accentColor={
           isBye(match.teamB)
-            ? "#94a3b8"
+            ? "#cbd5e1"
             : match.winnerId === match.teamB?.id
             ? "#22c55e"
-            : match.status === "live"
+            : isLive
             ? "#ef4444"
             : "#0369a1"
         }
@@ -369,6 +370,26 @@ export default function BracketPage() {
           >
             <Trash2 className="w-4 h-4" />
           </button>
+        </div>
+      </div>
+
+      {/* ── Status Legend Bar ────────────────────────── */}
+      <div className="mx-4 mt-3 flex items-center justify-center gap-3.5 py-2 px-3 bg-white/90 backdrop-blur rounded-xl border border-slate-200/80 shadow-xs text-[11px] font-semibold text-slate-600 flex-wrap">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-primary-600 shrink-0" />
+          <span>Belum Tanding</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+          <span className="text-red-600 font-bold">Sedang Tanding (Live)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+          <span className="text-emerald-700 font-bold">Selesai</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0" />
+          <span className="text-slate-400">BYE</span>
         </div>
       </div>
 

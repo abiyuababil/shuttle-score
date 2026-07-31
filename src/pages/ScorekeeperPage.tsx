@@ -76,13 +76,23 @@ export default function ScorekeeperPage() {
       currentScore.teamB = Math.max(0, currentScore.teamB + delta);
     }
 
+    const newScores = {
+      ...match.scores,
+      [gameKey]: currentScore,
+    };
+
+    const hasAnyPoints =
+      newScores.game1.teamA > 0 ||
+      newScores.game1.teamB > 0 ||
+      newScores.game2.teamA > 0 ||
+      newScores.game2.teamB > 0 ||
+      newScores.game3.teamA > 0 ||
+      newScores.game3.teamB > 0;
+
     // Update serving team on score change (when adding)
     const updates: Partial<Match> = {
-      scores: {
-        ...match.scores,
-        [gameKey]: currentScore,
-      },
-      status: "live" as const,
+      scores: newScores,
+      status: hasAnyPoints ? "live" : "pending",
     };
 
     // Auto-switch serve when scoring +1
