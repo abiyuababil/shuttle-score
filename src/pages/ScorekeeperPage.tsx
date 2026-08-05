@@ -7,6 +7,7 @@ import {
   Check,
   AlertTriangle,
   X,
+  Calendar,
 } from "lucide-react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
@@ -34,6 +35,22 @@ function ShuttlecockIcon({ className }: { className?: string }) {
       />
     </svg>
   );
+}
+
+function formatMatchSchedule(scheduledAt?: string | null): string {
+  if (!scheduledAt) return "";
+  try {
+    const d = new Date(scheduledAt);
+    if (isNaN(d.getTime())) return scheduledAt;
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+    const day = d.getDate();
+    const month = months[d.getMonth()];
+    const hours = String(d.getHours()).padStart(2, "0");
+    const mins = String(d.getMinutes()).padStart(2, "0");
+    return `${day} ${month} • ${hours}:${mins}`;
+  } catch {
+    return scheduledAt;
+  }
 }
 
 export default function ScorekeeperPage() {
@@ -178,6 +195,13 @@ export default function ScorekeeperPage() {
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             Live Scorekeeper
           </span>
+          {match.scheduledAt && (
+            <p className="text-[10px] font-medium text-primary-300 flex items-center justify-center gap-1 mt-0.5">
+              <Calendar className="w-3 h-3 text-primary-400 shrink-0" />
+              <span>{formatMatchSchedule(match.scheduledAt)}</span>
+              {match.court && <span>({match.court})</span>}
+            </p>
+          )}
           {match.status === "live" && (
             <div className="flex items-center justify-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse-live" />

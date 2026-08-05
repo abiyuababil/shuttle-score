@@ -139,6 +139,8 @@ export async function generateBracket(
         winnerId: null,
         status: "pending",
         nextMatchId: null,
+        scheduledAt: null,
+        court: null,
       };
 
       // First round → assign teams (including BYEs)
@@ -246,6 +248,20 @@ export function determineWinner(match: Match): string | null {
   if (winsB >= 2) return teamB.id;
 
   return null;
+}
+
+// ─── Update match schedule in Firebase ───────────────────────────
+
+export async function updateMatchSchedule(
+  matchId: string,
+  scheduledAt: string | null,
+  court?: string | null
+): Promise<void> {
+  const matchRef = doc(db, "matches", matchId);
+  await updateDoc(matchRef, {
+    scheduledAt: scheduledAt || null,
+    court: court || null,
+  });
 }
 
 // ─── Update match score in Firebase ─────────────────────────────

@@ -5,6 +5,11 @@ import {
   Users,
   Crown,
   Trash2,
+  Calendar,
+  Clock,
+  MapPin,
+  X,
+  Check,
 } from "lucide-react";
 import {
   doc,
@@ -14,7 +19,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { getRoundLabel, isBye, deleteTournament } from "../lib/bracketUtils";
+import { getRoundLabel, isBye, deleteTournament, updateMatchSchedule } from "../lib/bracketUtils";
 import type { Match, Tournament } from "../lib/types";
 
 // ── Layout types ────────────────────────────────────────────────
@@ -28,10 +33,162 @@ interface NodeLayout {
   isReal: boolean;
 }
 
-const CARD_HEIGHT = 74;
+const CARD_HEIGHT = 96;
 const CARD_GAP = 28;
 const COL_WIDTH = 180;
 const ROUND_GAP = 40;
+
+function formatMatchSchedule(scheduledAt?: string | null): string {
+  if (!scheduledAt) return "";
+  try {
+    const d = new Date(scheduledAt);
+    if (isNaN(d.getTime())) return scheduledAt;
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+    const day = d.getDate();
+    const month = months[d.getMonth()];
+    const hours = String(d.getHours()).padStart(2, "0");
+    const mins = String(d.getMinutes()).padStart(2, "0");
+    return `${day} ${month} • ${hours}:${mins}`;
+  } catch {
+    return scheduledAt;
+  }
+}
+
+// ── Match Schedule Modal ────────────────────────────────────────
+function MatchScheduleModal({
+  match,
+  onClose,
+  onSave,
+}: {
+  match: Match;
+  onClose: () => void;
+  onSave: (scheduledAt: string | null, court: string | null) => Promise<void>;
+}) {
+  const [scheduledAt, setScheduledAt] = useState<string>(
+    match.scheduledAt || ""
+  );
+  const [court, setCourt] = useState<string>(match.court || "");
+  const [saving, setSaving] = useState(false);
+
+  const teamAName = match.teamA ? (isBye(match.teamA) ? "BYE" : match.teamA.name) : "TBD";
+  const teamBName = match.teamB ? (isBye(match.teamB) ? "BYE" : match.teamB.name) : "TBD";
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await onSave(scheduledAt || null, court || null);
+      onClose();
+    } catch (err: any) {
+      alert("Gagal menyimpan jadwal: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleClear = async () => {
+    setSaving(true);
+    try {
+      await onSave(null, null);
+      onClose();
+    } catch (err: any) {
+      alert("Gagal menghapus jadwal: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in px-4">
+      <div className="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl animate-scale-in">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-800">
+                Jadwal Pertandingan
+              </h3>
+              <p className="text-xs text-slate-400 font-medium truncate max-w-[200px]">
+                {teamAName} vs {teamBName}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSave} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-primary-500" />
+              Tanggal & Jam
+            </label>
+            <input
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-primary-500" />
+              Lapangan / Court (Opsional)
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: Lapangan 1"
+              value={court}
+              onChange={(e) => setCourt(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 transition"
+            />
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            {match.scheduledAt && (
+              <button
+                type="button"
+                onClick={handleClear}
+                disabled={saving}
+                className="py-2.5 px-3 rounded-xl bg-red-50 text-xs font-bold text-red-600 hover:bg-red-100 transition active:scale-[0.98] disabled:opacity-50"
+              >
+                Hapus
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl bg-slate-100 text-xs font-bold text-slate-600 hover:bg-slate-200 transition active:scale-[0.98]"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 py-2.5 rounded-xl bg-primary-600 text-xs font-bold text-white shadow-md shadow-primary-500/20 hover:bg-primary-700 transition active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-1.5"
+            >
+              {saving ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  Simpan
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 // ── Match Card ──────────────────────────────────────────────────
 function TeamSlot({
@@ -85,9 +242,11 @@ function TeamSlot({
 function MatchCard({
   match,
   onTap,
+  onOpenSchedule,
 }: {
   match: Match;
   onTap: () => void;
+  onOpenSchedule: (match: Match) => void;
 }) {
   const hasBye = isBye(match.teamA) || isBye(match.teamB);
   const canTap = match.teamA && match.teamB && !hasBye && match.status !== "completed";
@@ -107,56 +266,95 @@ function MatchCard({
     return team.name;
   };
 
+  const formattedDate = formatMatchSchedule(match.scheduledAt);
+
   return (
-    <button
-      onClick={() => canTap && onTap()}
-      disabled={!canTap}
-      className={`w-full text-left rounded-lg overflow-hidden shadow-sm transition-all h-[74px] border border-slate-200 flex flex-col justify-between ${
+    <div
+      className={`w-full text-left rounded-lg overflow-hidden shadow-sm transition-all h-[96px] border border-slate-200 flex flex-col justify-between ${
         hasBye
           ? "opacity-50 cursor-default"
           : isLive
           ? "ring-2 ring-red-400 shadow-red-100 animate-pulse-subtle"
-          : canTap
-          ? "hover:shadow-md hover:ring-2 hover:ring-primary-300 active:scale-[0.98]"
-          : "opacity-70 cursor-default"
+          : "hover:shadow-md"
       }`}
     >
-      {/* Team A */}
-      <TeamSlot
-        name={getTeamName(match.teamA)}
-        score={getScoreDetail("A")}
-        isWinner={match.winnerId === match.teamA?.id && !isBye(match.teamA)}
-        isLoser={!!match.winnerId && match.winnerId !== match.teamA?.id}
-        showScore={showScore}
-        accentColor={
-          isBye(match.teamA)
-            ? "#cbd5e1"
-            : match.winnerId === match.teamA?.id
-            ? "#22c55e"
-            : isLive
-            ? "#ef4444"
-            : "#0369a1"
-        }
-      />
+      {/* Date & Time Header Strip */}
+      <div
+        onClick={(e) => {
+          if (!hasBye) {
+            e.stopPropagation();
+            onOpenSchedule(match);
+          }
+        }}
+        className={`h-[24px] px-2 text-[10px] font-semibold flex items-center justify-between border-b transition-colors ${
+          match.scheduledAt
+            ? "bg-primary-50/90 text-primary-700 border-primary-100 hover:bg-primary-100/80 cursor-pointer"
+            : "bg-slate-50/90 text-slate-400 border-slate-100 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
+        }`}
+        title={hasBye ? undefined : "Klik untuk atur jadwal"}
+      >
+        <div className="flex items-center gap-1 truncate min-w-0">
+          <Calendar className={`w-3 h-3 shrink-0 ${match.scheduledAt ? "text-primary-600" : "text-slate-400"}`} />
+          <span className="truncate">
+            {formattedDate ? (
+              <>
+                {formattedDate}
+                {match.court && <span className="ml-1 font-normal opacity-80">• {match.court}</span>}
+              </>
+            ) : (
+              "+ Jadwal"
+            )}
+          </span>
+        </div>
+        {!hasBye && (
+          <Clock className="w-3 h-3 text-slate-400 hover:text-primary-600 shrink-0 ml-1" />
+        )}
+      </div>
 
-      {/* Team B */}
-      <TeamSlot
-        name={getTeamName(match.teamB)}
-        score={getScoreDetail("B")}
-        isWinner={match.winnerId === match.teamB?.id && !isBye(match.teamB)}
-        isLoser={!!match.winnerId && match.winnerId !== match.teamB?.id}
-        showScore={showScore}
-        accentColor={
-          isBye(match.teamB)
-            ? "#cbd5e1"
-            : match.winnerId === match.teamB?.id
-            ? "#22c55e"
-            : isLive
-            ? "#ef4444"
-            : "#0369a1"
-        }
-      />
-    </button>
+      {/* Team Slots Area */}
+      <div
+        onClick={() => canTap && onTap()}
+        className={`flex-1 flex flex-col justify-between ${
+          canTap ? "cursor-pointer active:opacity-90" : "cursor-default"
+        }`}
+      >
+        {/* Team A */}
+        <TeamSlot
+          name={getTeamName(match.teamA)}
+          score={getScoreDetail("A")}
+          isWinner={match.winnerId === match.teamA?.id && !isBye(match.teamA)}
+          isLoser={!!match.winnerId && match.winnerId !== match.teamA?.id}
+          showScore={showScore}
+          accentColor={
+            isBye(match.teamA)
+              ? "#cbd5e1"
+              : match.winnerId === match.teamA?.id
+              ? "#22c55e"
+              : isLive
+              ? "#ef4444"
+              : "#0369a1"
+          }
+        />
+
+        {/* Team B */}
+        <TeamSlot
+          name={getTeamName(match.teamB)}
+          score={getScoreDetail("B")}
+          isWinner={match.winnerId === match.teamB?.id && !isBye(match.teamB)}
+          isLoser={!!match.winnerId && match.winnerId !== match.teamB?.id}
+          showScore={showScore}
+          accentColor={
+            isBye(match.teamB)
+              ? "#cbd5e1"
+              : match.winnerId === match.teamB?.id
+              ? "#22c55e"
+              : isLive
+              ? "#ef4444"
+              : "#0369a1"
+          }
+        />
+      </div>
+    </div>
   );
 }
 
@@ -167,6 +365,7 @@ export default function BracketPage() {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingScheduleMatch, setEditingScheduleMatch] = useState<Match | null>(null);
 
   // Listen to tournament
   useEffect(() => {
@@ -237,6 +436,14 @@ export default function BracketPage() {
     }
   };
 
+  const handleSaveSchedule = async (
+    scheduledAt: string | null,
+    court: string | null
+  ) => {
+    if (!editingScheduleMatch) return;
+    await updateMatchSchedule(editingScheduleMatch.id, scheduledAt, court);
+  };
+
   // Find champion
   const finalMatch = rounds[rounds.length - 1]?.[0];
   const champion =
@@ -261,8 +468,8 @@ export default function BracketPage() {
         top,
         height: CARD_HEIGHT,
         centerY,
-        teamACenterY: top + 18,
-        teamBCenterY: top + 55,
+        teamACenterY: top + 42,
+        teamBCenterY: top + 78,
         isReal: true,
       });
     });
@@ -288,8 +495,8 @@ export default function BracketPage() {
           top,
           height: CARD_HEIGHT,
           centerY,
-          teamACenterY: top + 18,
-          teamBCenterY: top + 55,
+          teamACenterY: top + 42,
+          teamBCenterY: top + 78,
           isReal: true,
         });
       });
@@ -317,8 +524,8 @@ export default function BracketPage() {
           top,
           height: CARD_HEIGHT,
           centerY: targetY,
-          teamACenterY: top + 18,
-          teamBCenterY: top + 55,
+          teamACenterY: top + 42,
+          teamBCenterY: top + 78,
           isReal: isRealMatch,
         });
       });
@@ -437,6 +644,7 @@ export default function BracketPage() {
                             <MatchCard
                               match={match}
                               onTap={() => navigate(`/match/${match.id}`)}
+                              onOpenSchedule={(m) => setEditingScheduleMatch(m)}
                             />
                           </div>
                         );
@@ -582,6 +790,15 @@ export default function BracketPage() {
           Single Elimination • {tournament?.size} Tim
         </p>
       </div>
+
+      {/* ── Match Schedule Modal ─────────────────────── */}
+      {editingScheduleMatch && (
+        <MatchScheduleModal
+          match={editingScheduleMatch}
+          onClose={() => setEditingScheduleMatch(null)}
+          onSave={handleSaveSchedule}
+        />
+      )}
 
       {/* ── Delete Confirmation Modal ────────────────── */}
       {deleteConfirm && (

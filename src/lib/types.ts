@@ -27,6 +27,8 @@ export interface Match {
   winnerId: string | null;
   status: "pending" | "live" | "completed";
   nextMatchId: string | null;
+  scheduledAt?: string | null;
+  court?: string | null;
 }
 
 export interface Tournament {
