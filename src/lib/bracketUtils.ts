@@ -141,6 +141,7 @@ export async function generateBracket(
         nextMatchId: null,
         scheduledAt: null,
         court: null,
+        umpire: null,
       };
 
       // First round → assign teams (including BYEs)
@@ -255,12 +256,14 @@ export function determineWinner(match: Match): string | null {
 export async function updateMatchSchedule(
   matchId: string,
   scheduledAt: string | null,
-  court?: string | null
+  court?: string | null,
+  umpire?: string | null
 ): Promise<void> {
   const matchRef = doc(db, "matches", matchId);
   await updateDoc(matchRef, {
     scheduledAt: scheduledAt || null,
     court: court || null,
+    umpire: umpire || null,
   });
 }
 

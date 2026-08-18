@@ -29,6 +29,7 @@ export interface Match {
   nextMatchId: string | null;
   scheduledAt?: string | null;
   court?: string | null;
+  umpire?: string | null;
 }
 
 export interface Tournament {

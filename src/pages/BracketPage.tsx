@@ -10,6 +10,7 @@ import {
   MapPin,
   X,
   Check,
+  UserCheck,
 } from "lucide-react";
 import {
   doc,
@@ -33,9 +34,9 @@ interface NodeLayout {
   isReal: boolean;
 }
 
-const CARD_HEIGHT = 96;
-const CARD_GAP = 28;
-const COL_WIDTH = 180;
+const CARD_HEIGHT = 120;
+const CARD_GAP = 32;
+const COL_WIDTH = 240;
 const ROUND_GAP = 40;
 
 function formatMatchSchedule(scheduledAt?: string | null): string {
@@ -62,12 +63,17 @@ function MatchScheduleModal({
 }: {
   match: Match;
   onClose: () => void;
-  onSave: (scheduledAt: string | null, court: string | null) => Promise<void>;
+  onSave: (
+    scheduledAt: string | null,
+    court: string | null,
+    umpire: string | null
+  ) => Promise<void>;
 }) {
   const [scheduledAt, setScheduledAt] = useState<string>(
     match.scheduledAt || ""
   );
   const [court, setCourt] = useState<string>(match.court || "");
+  const [umpire, setUmpire] = useState<string>(match.umpire || "");
   const [saving, setSaving] = useState(false);
 
   const teamAName = match.teamA ? (isBye(match.teamA) ? "BYE" : match.teamA.name) : "TBD";
@@ -77,7 +83,7 @@ function MatchScheduleModal({
     e.preventDefault();
     setSaving(true);
     try {
-      await onSave(scheduledAt || null, court || null);
+      await onSave(scheduledAt || null, court || null, umpire || null);
       onClose();
     } catch (err: any) {
       alert("Gagal menyimpan jadwal: " + err.message);
@@ -89,7 +95,7 @@ function MatchScheduleModal({
   const handleClear = async () => {
     setSaving(true);
     try {
-      await onSave(null, null);
+      await onSave(null, null, null);
       onClose();
     } catch (err: any) {
       alert("Gagal menghapus jadwal: " + err.message);
@@ -147,6 +153,20 @@ function MatchScheduleModal({
               placeholder="Contoh: Lapangan 1"
               value={court}
               onChange={(e) => setCourt(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <UserCheck className="w-3.5 h-3.5 text-primary-500" />
+              Wasit / Umpire (Opsional)
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: Johan"
+              value={umpire}
+              onChange={(e) => setUmpire(e.target.value)}
               className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 transition"
             />
           </div>
@@ -270,7 +290,7 @@ function MatchCard({
 
   return (
     <div
-      className={`w-full text-left rounded-lg overflow-hidden shadow-sm transition-all h-[96px] border border-slate-200 flex flex-col justify-between ${
+      className={`w-full text-left rounded-lg overflow-hidden shadow-sm transition-all h-[120px] border border-slate-200 flex flex-col justify-between ${
         hasBye
           ? "opacity-50 cursor-default"
           : isLive
@@ -278,7 +298,7 @@ function MatchCard({
           : "hover:shadow-md"
       }`}
     >
-      {/* Date & Time Header Strip */}
+      {/* Date & Time + Umpire Top Header Strip (26px) */}
       <div
         onClick={(e) => {
           if (!hasBye) {
@@ -286,39 +306,48 @@ function MatchCard({
             onOpenSchedule(match);
           }
         }}
-        className={`h-[24px] px-2 text-[10px] font-semibold flex items-center justify-between border-b transition-colors ${
+        className={`h-[26px] px-2 text-[10.5px] font-semibold flex items-center justify-between border-b transition-colors ${
           match.scheduledAt
             ? "bg-primary-50/90 text-primary-700 border-primary-100 hover:bg-primary-100/80 cursor-pointer"
             : "bg-slate-50/90 text-slate-400 border-slate-100 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
         }`}
-        title={hasBye ? undefined : "Klik untuk atur jadwal"}
+        title={
+          hasBye
+            ? undefined
+            : match.scheduledAt
+            ? `Jadwal: ${formattedDate} ${match.court ? "• " + match.court : ""} ${match.umpire ? "• Wasit: " + match.umpire : ""}`
+            : "Klik untuk atur jadwal"
+        }
       >
-        <div className="flex items-center gap-1 truncate min-w-0">
-          <Calendar className={`w-3 h-3 shrink-0 ${match.scheduledAt ? "text-primary-600" : "text-slate-400"}`} />
-          <span className="truncate">
-            {formattedDate ? (
-              <>
-                {formattedDate}
-                {match.court && <span className="ml-1 font-normal opacity-80">• {match.court}</span>}
-              </>
-            ) : (
-              "+ Jadwal"
-            )}
+        <div className="flex items-center gap-1.5 truncate min-w-0 flex-1 mr-1">
+          <Calendar className={`w-3.5 h-3.5 shrink-0 ${match.scheduledAt ? "text-primary-600" : "text-slate-400"}`} />
+          <span className="truncate font-extrabold text-slate-800 tracking-tight">
+            {formattedDate || "+ Jadwal"}
           </span>
         </div>
-        {!hasBye && (
-          <Clock className="w-3 h-3 text-slate-400 hover:text-primary-600 shrink-0 ml-1" />
-        )}
+        <div className="flex items-center gap-1 shrink-0">
+          {match.umpire && (
+            <span
+              className="text-[9.5px] bg-amber-100 text-amber-900 font-bold px-1.5 py-0.5 rounded flex items-center gap-1 border border-amber-300 shadow-2xs"
+              title={`Wasit: ${match.umpire}`}
+            >
+              <UserCheck className="w-3 h-3 text-amber-700 shrink-0" />
+              <span>Wasit: {match.umpire}</span>
+            </span>
+          )}
+          {!hasBye && (
+            <Clock className="w-3.5 h-3.5 text-slate-400 hover:text-primary-600 shrink-0 ml-0.5" />
+          )}
+        </div>
       </div>
 
-      {/* Team Slots Area */}
+      {/* Team Slots Area (36px + 36px = 72px) */}
       <div
         onClick={() => canTap && onTap()}
         className={`flex-1 flex flex-col justify-between ${
           canTap ? "cursor-pointer active:opacity-90" : "cursor-default"
         }`}
       >
-        {/* Team A */}
         <TeamSlot
           name={getTeamName(match.teamA)}
           score={getScoreDetail("A")}
@@ -335,8 +364,6 @@ function MatchCard({
               : "#0369a1"
           }
         />
-
-        {/* Team B */}
         <TeamSlot
           name={getTeamName(match.teamB)}
           score={getScoreDetail("B")}
@@ -353,6 +380,29 @@ function MatchCard({
               : "#0369a1"
           }
         />
+      </div>
+
+      {/* Court Bottom Footer Strip (22px) */}
+      <div
+        onClick={(e) => {
+          if (!hasBye) {
+            e.stopPropagation();
+            onOpenSchedule(match);
+          }
+        }}
+        className={`h-[22px] px-2 text-[10px] font-bold flex items-center justify-between border-t transition-colors cursor-pointer ${
+          match.court
+            ? "bg-primary-50/80 text-primary-800 border-primary-100 hover:bg-primary-100/80"
+            : "bg-slate-50/60 text-slate-400 border-slate-100 hover:bg-slate-100/80"
+        }`}
+        title={hasBye ? undefined : "Click to set court"}
+      >
+        <div className="flex items-center gap-1.5 truncate">
+          <MapPin className={`w-3 h-3 shrink-0 ${match.court ? "text-primary-600" : "text-slate-400"}`} />
+          <span className="truncate">
+            {match.court ? match.court : "+ Lapangan / Court"}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -438,10 +488,11 @@ export default function BracketPage() {
 
   const handleSaveSchedule = async (
     scheduledAt: string | null,
-    court: string | null
+    court: string | null,
+    umpire: string | null
   ) => {
     if (!editingScheduleMatch) return;
-    await updateMatchSchedule(editingScheduleMatch.id, scheduledAt, court);
+    await updateMatchSchedule(editingScheduleMatch.id, scheduledAt, court, umpire);
   };
 
   // Find champion
@@ -468,8 +519,8 @@ export default function BracketPage() {
         top,
         height: CARD_HEIGHT,
         centerY,
-        teamACenterY: top + 42,
-        teamBCenterY: top + 78,
+        teamACenterY: top + 44,
+        teamBCenterY: top + 80,
         isReal: true,
       });
     });
@@ -495,8 +546,8 @@ export default function BracketPage() {
           top,
           height: CARD_HEIGHT,
           centerY,
-          teamACenterY: top + 42,
-          teamBCenterY: top + 78,
+          teamACenterY: top + 44,
+          teamBCenterY: top + 80,
           isReal: true,
         });
       });
@@ -524,8 +575,8 @@ export default function BracketPage() {
           top,
           height: CARD_HEIGHT,
           centerY: targetY,
-          teamACenterY: top + 42,
-          teamBCenterY: top + 78,
+          teamACenterY: top + 44,
+          teamBCenterY: top + 80,
           isReal: isRealMatch,
         });
       });
