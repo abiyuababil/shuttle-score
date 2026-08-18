@@ -228,29 +228,26 @@ function TeamSlot({
 }) {
   return (
     <div
-      className={`flex items-center border transition-colors h-[36px] ${
-        isWinner
+      className={`flex items-center border transition-colors h-[36px] ${isWinner
           ? "bg-emerald-50 border-emerald-200"
           : isLoser
-          ? "bg-slate-50 border-slate-200"
-          : "bg-primary-50/60 border-primary-200/60"
-      }`}
+            ? "bg-slate-50 border-slate-200"
+            : "bg-primary-50/60 border-primary-200/60"
+        }`}
       style={{ borderLeftWidth: 4, borderLeftColor: accentColor }}
     >
       <span
-        className={`flex-1 px-3 text-[13px] font-semibold truncate ${
-          isLoser ? "text-slate-400 line-through" : "text-slate-700"
-        }`}
+        className={`flex-1 px-3 text-[13px] font-semibold truncate ${isLoser ? "text-slate-400 line-through" : "text-slate-700"
+          }`}
       >
         {name}
       </span>
       {showScore && score && (
         <span
-          className={`px-2.5 py-1 text-xs font-bold border-l ${
-            isWinner
+          className={`px-2.5 py-1 text-xs font-bold border-l ${isWinner
               ? "text-emerald-600 bg-emerald-100/60 border-emerald-200"
               : "text-slate-500 bg-slate-50 border-slate-200"
-          }`}
+            }`}
         >
           {score}
         </span>
@@ -290,13 +287,12 @@ function MatchCard({
 
   return (
     <div
-      className={`w-full text-left rounded-lg overflow-hidden shadow-sm transition-all h-[120px] border border-slate-200 flex flex-col justify-between ${
-        hasBye
+      className={`w-full text-left rounded-lg overflow-hidden shadow-sm transition-all h-[120px] border border-slate-200 flex flex-col justify-between ${hasBye
           ? "opacity-50 cursor-default"
           : isLive
-          ? "ring-2 ring-red-400 shadow-red-100 animate-pulse-subtle"
-          : "hover:shadow-md"
-      }`}
+            ? "ring-2 ring-red-400 shadow-red-100 animate-pulse-subtle"
+            : "hover:shadow-md"
+        }`}
     >
       {/* Date & Time + Umpire Top Header Strip (26px) */}
       <div
@@ -306,17 +302,16 @@ function MatchCard({
             onOpenSchedule(match);
           }
         }}
-        className={`h-[26px] px-2 text-[10.5px] font-semibold flex items-center justify-between border-b transition-colors ${
-          match.scheduledAt
+        className={`h-[26px] px-2 text-[10.5px] font-semibold flex items-center justify-between border-b transition-colors ${match.scheduledAt
             ? "bg-primary-50/90 text-primary-700 border-primary-100 hover:bg-primary-100/80 cursor-pointer"
             : "bg-slate-50/90 text-slate-400 border-slate-100 hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
-        }`}
+          }`}
         title={
           hasBye
             ? undefined
             : match.scheduledAt
-            ? `Jadwal: ${formattedDate} ${match.court ? "• " + match.court : ""} ${match.umpire ? "• Wasit: " + match.umpire : ""}`
-            : "Klik untuk atur jadwal"
+              ? `Jadwal: ${formattedDate} ${match.court ? "• " + match.court : ""} ${match.umpire ? "• Wasit: " + match.umpire : ""}`
+              : "Klik untuk atur jadwal"
         }
       >
         <div className="flex items-center gap-1.5 truncate min-w-0 flex-1 mr-1">
@@ -344,9 +339,8 @@ function MatchCard({
       {/* Team Slots Area (36px + 36px = 72px) */}
       <div
         onClick={() => canTap && onTap()}
-        className={`flex-1 flex flex-col justify-between ${
-          canTap ? "cursor-pointer active:opacity-90" : "cursor-default"
-        }`}
+        className={`flex-1 flex flex-col justify-between ${canTap ? "cursor-pointer active:opacity-90" : "cursor-default"
+          }`}
       >
         <TeamSlot
           name={getTeamName(match.teamA)}
@@ -358,10 +352,10 @@ function MatchCard({
             isBye(match.teamA)
               ? "#cbd5e1"
               : match.winnerId === match.teamA?.id
-              ? "#22c55e"
-              : isLive
-              ? "#ef4444"
-              : "#0369a1"
+                ? "#22c55e"
+                : isLive
+                  ? "#ef4444"
+                  : "#0369a1"
           }
         />
         <TeamSlot
@@ -374,10 +368,10 @@ function MatchCard({
             isBye(match.teamB)
               ? "#cbd5e1"
               : match.winnerId === match.teamB?.id
-              ? "#22c55e"
-              : isLive
-              ? "#ef4444"
-              : "#0369a1"
+                ? "#22c55e"
+                : isLive
+                  ? "#ef4444"
+                  : "#0369a1"
           }
         />
       </div>
@@ -390,11 +384,10 @@ function MatchCard({
             onOpenSchedule(match);
           }
         }}
-        className={`h-[22px] px-2 text-[10px] font-bold flex items-center justify-between border-t transition-colors cursor-pointer ${
-          match.court
+        className={`h-[22px] px-2 text-[10px] font-bold flex items-center justify-between border-t transition-colors cursor-pointer ${match.court
             ? "bg-primary-50/80 text-primary-800 border-primary-100 hover:bg-primary-100/80"
             : "bg-slate-50/60 text-slate-400 border-slate-100 hover:bg-slate-100/80"
-        }`}
+          }`}
         title={hasBye ? undefined : "Click to set court"}
       >
         <div className="flex items-center gap-1.5 truncate">
@@ -537,8 +530,8 @@ export default function BracketPage() {
           topFeed && botFeed
             ? (topFeed.centerY + botFeed.centerY) / 2
             : topFeed
-            ? topFeed.centerY
-            : botFeed?.centerY || 0;
+              ? topFeed.centerY
+              : botFeed?.centerY || 0;
 
         const top = centerY - CARD_HEIGHT / 2;
         map.set(m.id, {
@@ -621,13 +614,13 @@ export default function BracketPage() {
               {tournament?.size} tim • Single Elimination
             </p>
           </div>
-          <button
+          {/*<button
             onClick={() => setDeleteConfirm(true)}
             className="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 active:scale-95 transition"
             title="Hapus turnamen ini"
           >
             <Trash2 className="w-4 h-4" />
-          </button>
+          </button>*/}
         </div>
       </div>
 
@@ -654,9 +647,8 @@ export default function BracketPage() {
           <div
             className="flex items-start"
             style={{
-              minWidth: `${
-                visibleRounds.length * (COL_WIDTH + ROUND_GAP) - ROUND_GAP
-              }px`,
+              minWidth: `${visibleRounds.length * (COL_WIDTH + ROUND_GAP) - ROUND_GAP
+                }px`,
             }}
           >
             {visibleRounds.map((roundMatches, displayRoundIdx) => {
