@@ -11,6 +11,7 @@ import {
   X,
   Check,
   UserCheck,
+  Pencil,
 } from "lucide-react";
 import {
   doc,
@@ -20,8 +21,14 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { getRoundLabel, isBye, deleteTournament, updateMatchSchedule } from "../lib/bracketUtils";
-import type { Match, Tournament } from "../lib/types";
+import {
+  getRoundLabel,
+  isBye,
+  deleteTournament,
+  updateMatchSchedule,
+  updateTournamentDetails,
+} from "../lib/bracketUtils";
+import type { Match, Tournament, Team } from "../lib/types";
 
 // ── Layout types ────────────────────────────────────────────────
 interface NodeLayout {
@@ -200,6 +207,142 @@ function MatchScheduleModal({
                 <>
                   <Check className="w-3.5 h-3.5" />
                   Simpan
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Teams & Tournament Modal ─────────────────────────────
+function EditTeamsModal({
+  tournament,
+  initialTeamId,
+  onClose,
+  onSave,
+}: {
+  tournament: Tournament;
+  initialTeamId?: string | null;
+  onClose: () => void;
+  onSave: (tourneyName: string, teams: Team[]) => Promise<void>;
+}) {
+  const [tourneyName, setTourneyName] = useState(tournament.name);
+  const [teams, setTeams] = useState<Team[]>(
+    tournament.teams ? [...tournament.teams] : []
+  );
+  const [saving, setSaving] = useState(false);
+
+  const handleTeamChange = (index: number, newName: string) => {
+    setTeams((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], name: newName };
+      return next;
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await onSave(tourneyName.trim(), teams);
+      onClose();
+    } catch (err: any) {
+      alert("Gagal menyimpan nama: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in px-4">
+      <div className="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl animate-scale-in max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between mb-4 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center">
+              <Pencil className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-800">
+                Ubah Nama Turnamen & Tim
+              </h3>
+              <p className="text-xs text-slate-400 font-medium">
+                Perubahan nama akan langsung diperbarui di bagan
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 space-y-4 overflow-hidden">
+          <div className="shrink-0">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Nama Turnamen
+            </label>
+            <input
+              type="text"
+              value={tourneyName}
+              onChange={(e) => setTourneyName(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-400 transition"
+              required
+            />
+          </div>
+
+          <div className="flex-1 min-h-0 flex flex-col">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5 shrink-0">
+              Daftar Peserta / Tim ({teams.length})
+            </label>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+              {teams.map((t, idx) => (
+                <div
+                  key={t.id}
+                  className={`flex items-center gap-2 p-1.5 rounded-xl border transition ${
+                    t.id === initialTeamId
+                      ? "bg-primary-50/70 border-primary-300 ring-2 ring-primary-200"
+                      : "bg-slate-50/70 border-slate-200"
+                  }`}
+                >
+                  <span className="text-xs font-extrabold text-slate-400 w-6 text-center shrink-0">
+                    #{idx + 1}
+                  </span>
+                  <input
+                    type="text"
+                    value={t.name}
+                    onChange={(e) => handleTeamChange(idx, e.target.value)}
+                    placeholder={`Nama Tim ${idx + 1}`}
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-400 transition"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-3 border-t shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl bg-slate-100 text-xs font-bold text-slate-600 hover:bg-slate-200 transition active:scale-[0.98]"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 py-2.5 rounded-xl bg-primary-600 text-xs font-bold text-white shadow-md shadow-primary-500/20 hover:bg-primary-700 transition active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-1.5"
+            >
+              {saving ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  Simpan Perubahan
                 </>
               )}
             </button>
@@ -464,6 +607,8 @@ export default function BracketPage() {
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [editTeamsOpen, setEditTeamsOpen] = useState(false);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
 
   const handleDelete = async () => {
     if (!id) return;
@@ -486,6 +631,14 @@ export default function BracketPage() {
   ) => {
     if (!editingScheduleMatch) return;
     await updateMatchSchedule(editingScheduleMatch.id, scheduledAt, court, umpire);
+  };
+
+  const handleSaveTeams = async (
+    tourneyName: string,
+    updatedTeams: Team[]
+  ) => {
+    if (!id) return;
+    await updateTournamentDetails(id, tourneyName, updatedTeams);
   };
 
   // Find champion
@@ -614,13 +767,19 @@ export default function BracketPage() {
               {tournament?.size} tim • Single Elimination
             </p>
           </div>
-          {/*<button
-            onClick={() => setDeleteConfirm(true)}
-            className="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 active:scale-95 transition"
-            title="Hapus turnamen ini"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>*/}
+          {tournament && (
+            <button
+              onClick={() => {
+                setSelectedTeamId(null);
+                setEditTeamsOpen(true);
+              }}
+              className="py-1.5 px-3 rounded-xl bg-primary-50 text-primary-600 hover:bg-primary-100 font-bold text-xs flex items-center gap-1.5 transition active:scale-95 border border-primary-200/50 shadow-2xs shrink-0"
+              title="Ubah nama turnamen & tim"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Ubah Tim</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -833,6 +992,16 @@ export default function BracketPage() {
           Single Elimination • {tournament?.size} Tim
         </p>
       </div>
+
+      {/* ── Edit Teams Modal ──────────────────────────── */}
+      {editTeamsOpen && tournament && (
+        <EditTeamsModal
+          tournament={tournament}
+          initialTeamId={selectedTeamId}
+          onClose={() => setEditTeamsOpen(false)}
+          onSave={handleSaveTeams}
+        />
+      )}
 
       {/* ── Match Schedule Modal ─────────────────────── */}
       {editingScheduleMatch && (

@@ -320,3 +320,106 @@ export async function deleteTournament(tournamentId: string): Promise<void> {
 
   await batch.commit();
 }
+
+// ─── Update team name in Firebase ────────────────────────────────
+
+export async function updateTeamName(
+  tournamentId: string,
+  teamId: string,
+  newName: string
+): Promise<void> {
+  const tournamentRef = doc(db, "tournaments", tournamentId);
+  const tournamentSnap = await getDoc(tournamentRef);
+  if (!tournamentSnap.exists()) return;
+
+  const tournament = tournamentSnap.data() as Tournament;
+  const updatedTeams = (tournament.teams || []).map((t) =>
+    t.id === teamId ? { ...t, name: newName } : t
+  );
+
+  const batch = writeBatch(db);
+  batch.update(tournamentRef, { teams: updatedTeams });
+
+  // Update all matches in this tournament containing this team
+  const matchesQuery = query(
+    collection(db, "matches"),
+    where("tournamentId", "==", tournamentId)
+  );
+  const matchSnap = await getDocs(matchesQuery);
+
+  matchSnap.docs.forEach((d) => {
+    const match = d.data() as Match;
+    let needsUpdate = false;
+    const updates: Record<string, unknown> = {};
+
+    if (match.teamA?.id === teamId) {
+      updates.teamA = { ...match.teamA, name: newName };
+      needsUpdate = true;
+    }
+    if (match.teamB?.id === teamId) {
+      updates.teamB = { ...match.teamB, name: newName };
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      batch.update(d.ref, updates);
+    }
+  });
+
+  await batch.commit();
+}
+
+// ─── Update tournament details (name and/or multiple teams) ───────
+
+export async function updateTournamentDetails(
+  tournamentId: string,
+  tournamentName: string,
+  updatedTeams: Team[]
+): Promise<void> {
+  const tournamentRef = doc(db, "tournaments", tournamentId);
+  const batch = writeBatch(db);
+
+  batch.update(tournamentRef, {
+    name: tournamentName,
+    teams: updatedTeams,
+  });
+
+  // Map team ID to new name
+  const teamMap = new Map<string, string>();
+  updatedTeams.forEach((t) => teamMap.set(t.id, t.name));
+
+  const matchesQuery = query(
+    collection(db, "matches"),
+    where("tournamentId", "==", tournamentId)
+  );
+  const matchSnap = await getDocs(matchesQuery);
+
+  matchSnap.docs.forEach((d) => {
+    const match = d.data() as Match;
+    let needsUpdate = false;
+    const updates: Record<string, unknown> = {};
+
+    if (match.teamA && teamMap.has(match.teamA.id)) {
+      const newName = teamMap.get(match.teamA.id)!;
+      if (match.teamA.name !== newName) {
+        updates.teamA = { ...match.teamA, name: newName };
+        needsUpdate = true;
+      }
+    }
+
+    if (match.teamB && teamMap.has(match.teamB.id)) {
+      const newName = teamMap.get(match.teamB.id)!;
+      if (match.teamB.name !== newName) {
+        updates.teamB = { ...match.teamB, name: newName };
+        needsUpdate = true;
+      }
+    }
+
+    if (needsUpdate) {
+      batch.update(d.ref, updates);
+    }
+  });
+
+  await batch.commit();
+}
+
