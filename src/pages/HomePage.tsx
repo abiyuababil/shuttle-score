@@ -24,6 +24,7 @@ import {
 import { db } from "../lib/firebase";
 import { generateBracket, nextPowerOf2, buildPaddedTeams, isBye } from "../lib/bracketUtils";
 import type { Team, Tournament } from "../lib/types";
+import { BrandLogo } from "../components/BrandLogo";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -264,9 +265,7 @@ export default function HomePage() {
         </div>
         <div className="relative px-5 pt-10 pb-10">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-2xl">
-              🏸
-            </div>
+            <BrandLogo size={44} />
             <div>
               <h1 className="text-2xl font-extrabold tracking-tight">
                 ShuttleScore

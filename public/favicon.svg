@@ -1,10 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0EA5E9"/>
-      <stop offset="100%" stop-color="#06B6D4"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="url(#g)"/>
-  <text x="32" y="44" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="32" fill="white">🏸</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="124" fill="#6ee7b7" />
+  <!-- Shuttlecock silhouette in clean monoline -->
+  <path d="M 180 180 L 332 180 L 290 310 L 222 310 Z"
+        fill="none" stroke="#064e3b" stroke-width="36" stroke-linejoin="round" stroke-linecap="round" />
+  <circle cx="256" cy="340" r="28" fill="#064e3b" />
 </svg>
